@@ -1,0 +1,162 @@
+from IPython.display import clear_output as co
+import random
+
+class Card:
+    def __init__(self, suit, rank, face=False, ace=False):
+        self.suit = suit
+        self.rank = rank
+        if ace:
+            self.real_value = 1
+        elif face:
+            self.real_value = 10
+        else:
+            self.real_value = self.rank
+        
+    def __repr__(self):
+        return f'<Card: ({self.suit}, {self.rank})>'
+
+    def __str__(self):
+        return f'{self.rank} of {self.suit}s'
+
+class Hand:
+    def __init__(self):
+        self.holding = []
+        
+    def show(self):
+        return [print(card) for card in self.holding]
+    
+    def get_total(self):
+        total = 0
+        for card_obj in self.holding:
+            total += card_obj.real_value
+        return total
+
+class Player:
+    def __init__(self):
+        self.hand = Hand()
+        
+    def show_hand(self, stand=False):
+        if isinstance(self, Dealer):
+            if stand == False:
+                print(f'Dealer --> {self.hand.holding[0]}')
+            else:
+                print(f'Dealer --> {self.hand.holding} [{self.hand.get_total()}]')
+        else:
+            print(f'Human --> {[card for card in self.hand.holding]} [{self.hand.get_total()}]')
+            
+    def game_over(self, cls, done=False):
+        self.show_hand()
+        cls.show_hand()
+        print(f'{type(self).__name__} BUST')
+        print(f'{type(cls).__name__} Wins')
+        input('Press any key to continue. ')
+
+class Dealer(Player):
+    def deal(self, cls, a_deck):
+        if len(cls.hand.holding) >= 2:
+            cls.hand.holding.append(a_deck.cards.pop())
+        else:
+            for i in range(2):
+                cls.hand.holding.append(a_deck.cards.pop())
+
+class Deck:
+    def __init__(self):
+        self.ranks = range(1, 13)
+        self.suits = ['Club', 'Spade', 'Diamond', 'Heart']
+        # self.cards = [Card(s, r) for s in self.suits for r in self.ranks]
+        self.cards = list(self.build_deck())
+        
+    def build_deck(self):
+        for s in self.suits:
+            for r in self.ranks:
+                if r == 1:
+                    yield Card(s, 'A', ace=True)
+                elif r == 11:
+                    yield Card(s, 'J', face=True)
+                elif r == 12:
+                    yield Card(s, 'Q', face=True)
+                elif r == 13:
+                    yield Card(s, 'K', face=True)
+        
+    def shuffle_cards(self):
+        print('Shuffling deck...')
+        random.shuffle(self.cards)
+        
+    def show_cards(self):
+        [print(card) for card in self.cards]
+
+class Blackjack:
+    current_round = 0
+    
+    @classmethod
+    def run(self):
+        game_over = False
+        while not game_over:
+            co()
+            
+            # Set up the game
+            deck = Deck()
+            human = Player()
+            dealer = Dealer()
+            
+            print("Welcome to PyJack")
+            
+            # Shuffle the cards
+            deck.shuffle_cards()
+            
+            confirm = input("Press any key to continue. Type 'quit' to exit program. ").lower()
+            if confirm == 'quit':
+                game_over = True
+            else:
+                dealer.deal(human, deck)
+                dealer.deal(dealer, deck)
+        
+                done = False
+                self.current_round = 1
+                while not done:
+                    co()
+                    if human.hand.get_total() == 21 and self.current_round == 1:
+                        print('Blackjack!')
+                        print('Human wins')
+                        print('Dealer loses')
+                        break
+                    elif human.hand.get_total() > 21 and self.current_round == 1:
+                        input('Invalid game. Press any key to try again. ')
+                        break
+                    elif human.hand.get_total() > 21:
+                        human.game_over(dealer, done=True)
+                        break
+                    elif dealer.hand.get_total() > 21:
+                        dealer.game_over(human, done=True)
+                        break
+                    human.show_hand()
+                    dealer.show_hand()
+                    
+                    ask = input("Would you like to hit or stand? Type 'exit' to stop playing. ").lower()
+                    if ask == 'exit':
+                        done = True
+                    elif ask == 'hit':
+                        dealer.deal(human, deck)
+                    elif ask == 'stand':
+                        co()
+                        while dealer.hand.get_total() < 16:
+                            dealer.deal(dealer, deck)
+                        human.show_hand()
+                        dealer.show_hand(stand=True)
+                        if dealer.hand.get_total() > 21:
+                            print('Dealer BUST')
+                            print('Human wins')
+                        elif human.hand.get_total() > dealer.hand.get_total():
+                            print('Human wins')
+                            print('Dealer loses')
+                        elif human.hand.get_total() == dealer.hand.get_total():
+                            input("PUSH. The game is void. Press any key to continue.")
+                            break
+                        else:
+                            print('Dealer wins')
+                            print('Human loses')
+                        input('Press any key to continue. ')
+                        done = True
+                    self.current_round +=1
+
+Blackjack.run()

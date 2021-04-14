@@ -1,0 +1,20 @@
+m1 = Manager('Ripal', 'Patel')
+m2 = Manager('Ryan', 'Butz')
+
+d1 = Developer('Sam', 'Davitt', 'Python')
+d2 = Developer('Joel', 'Carter', 'Python')
+d3 = Developer('Derek', 'Hawkins', 'JavaScript')
+
+m1.add_employee(d2)
+m1.add_employee(d3)
+
+m2.add_employee(d1)
+
+print(m1.employees)
+print(m2.employees)
+
+m1.remove_employee(d1)
+m1.remove_employee(d3)
+
+print(m1.employees)
+print(m2.employees)

@@ -1,0 +1,31 @@
+class Employee:
+    def __init__(self, first_name, last_name):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = f'{self.first_name}{self.last_name[0]}@codingtemple.com'.lower()
+        
+    def __repr__(self):
+        return f'<{type(self).__name__}: {self.email}>'
+
+class Developer(Employee):
+    def __init__(self, first_name, last_name, programming_language):
+        super().__init__(first_name, last_name)
+        self.programming_language = programming_language
+
+class Manager(Employee):
+    def __init__(self, first_name, last_name, employees=None):
+        super().__init__(first_name, last_name)
+        if employees is None:
+            self.employees = []
+        else:
+            self.employees = employees
+            
+    def add_employee(self, cls):
+        if cls is not self:
+            self.employees.append(cls)
+            
+    def remove_employee(self, cls):
+        if cls in self.employees:
+            self.employees.remove(cls)
+        else:
+            print(f"{cls.first_name} {cls.last_name} doesn't exist in {self.first_name} {self.last_name}'s list of employees")
